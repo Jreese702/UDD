@@ -10,20 +10,30 @@ $inFile = Import-Csv 'New\dash.csv'
 $targetCell = $inFile.Pie[0]
 Write-Output $targetCell
 
-
+$theme_Azure = Get-UDTheme -Name Azure
 
  Stop-UDDashboard -port 8080
  Start-UDDashboard  -port 8080 -Content { 
-    New-UDDashboard  -Title "" -NavBarColor '#FF1c1c1c' -NavBarFontColor "#FF55b3ff" -BackgroundColor "#FF333333" -FontColor "#FFFFFFF" -Content { 
-       
-New-UDRow -Columns { 
 
-  New-UDColumn -Size 6 {New-UDGauge -Value $targetCell -ValueText $targetCell -NeedleColor "black" -Segments 10 -Width 400 -Height 250 -ValueFontSize 24 -SegmentLabels 24}             
-  New-UDColumn -Size 6 {New-UDChart  -Type Line -AutoRefresh -RefreshInterval 7 @Colors -Endpoint {
+
+    New-UDDashboard  -Title ""  -theme $theme_Azure -Content { 
+
+
+New-UDTabContainer -Tabs {
+    New-UDTab  -Text 'Today' -Content{
+
+New-UDRow -Columns  { 
+New-UDColumn -size 4 {}
+  New-UDColumn -size 4 {New-UDGauge -Value $targetCell -ValueText $targetCell -NeedleColor "black" -Segments 10 -Width 300 -Height 150 -ValueFontSize 24 -SegmentLabels 24}             
+}
+New-UDColumn -size 4 {}
+New-UDRow -Columns { 
+New-UDColumn -size 1 {}
+  New-UDColumn -size 10 {New-UDChart  -Type Line -AutoRefresh -RefreshInterval 7 @Colors -Endpoint {
                     
-                    import-csv 'New\Today.csv' | Out-UDChartData -LabelProperty "Row Labels" -DataProperty "Row Labels" -Dataset @(
+ Import-csv 'New\Today.csv' | Out-UDChartData -LabelProperty "Row Labels" -DataProperty "Row Labels" -Dataset @(
                         
-                        New-UDChartDataset -DataProperty "GPNA" -Label "GPNA" -BorderColor "#4D8B4EF3"-BackgroundColor "#4D8B4EF3"
+                        New-UDChartDataset -DataProperty "GPNA" -Label "GPNA" -BorderColor "#4D8B4EF3" -BackgroundColor "#4D8B4EF3"
                         New-UDChartDataset -DataProperty "REQS " -Label "REQS" -BorderColor '#4DF32ED2' -BackgroundColor '#4DF32ED2'
                         New-UDChartDataset -DataProperty "Inbox" -Label "Unread/Actionable Inbox" -BorderColor '#4D2EF348' -BackgroundColor '#4D2EF348'
                         New-UDChartDataset -DataProperty "Outstanding" -Label "Total Outstanding Actions" -BackgroundColor "#4DDC143C"
@@ -31,8 +41,12 @@ New-UDRow -Columns {
 
 
 }
-
+New-UDColumn -size 1 {}
 }
+
+    }
+
+    New-UDTab -Text 'Recent Trending' -Content{
 
 New-UDRow -Columns { 
                 
@@ -98,8 +112,11 @@ New-UDRow -Columns {
                 
                 }
                 }
-    }        
+    }  
+    }
 
+    New-UDTab -Text 'Historical' -Content{
+        New-UDParagraph -Text 'This is Tab3'
             New-UDColumn -Size 6 {
                 New-UDChart -Title "Outstanding Items Trending" -Type Line -AutoRefresh -RefreshInterval 7 @Colors -Endpoint {
                     
@@ -113,6 +130,20 @@ New-UDRow -Columns {
                       )  }
                         }
       
+    }
+}
+
+
+
+
+
+
+       
+
+
+      
+
+
     
     
     }
